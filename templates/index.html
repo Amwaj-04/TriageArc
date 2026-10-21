@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f6f8">
+  <meta name="description" content="TriageArc is an educational SOC alert detection and investigation lab using synthetic events.">
+  <title>TriageArc — From signal to decision</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='triagearc-favicon-32.png') }}">
+  <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='triagearc-icon-192.png') }}">
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <script defer src="{{ url_for('static', filename='app.js') }}"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="/" aria-label="TriageArc home">
+        <img class="brand-mark brand-mark-light" src="{{ url_for('static', filename='triagearc-mark-light.png') }}" alt="" aria-hidden="true">
+        <img class="brand-mark brand-mark-dark" src="{{ url_for('static', filename='triagearc-mark.png') }}" alt="" aria-hidden="true">
+        <span><strong>TriageArc</strong><small>SECURITY OPERATIONS LAB</small></span>
+      </a>
+      <div class="workspace-label">WORKSPACE</div>
+      <nav class="side-nav" aria-label="Main navigation">
+        <button class="nav-item active" data-view="overview"><span class="nav-icon">◫</span> Overview</button>
+        <button class="nav-item" data-view="alerts"><span class="nav-icon">◉</span> Alert queue <span id="nav-alert-count" class="nav-count">5</span></button>
+        <button class="nav-item" data-view="events"><span class="nav-icon">≋</span> Event explorer</button>
+        <button class="nav-item" data-view="rules"><span class="nav-icon">⌘</span> Detection rules</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="lab-card"><span class="status-dot"></span><div><strong>Synthetic lab</strong><small>No live telemetry</small></div><span class="lab-lock">●</span></div>
+        <div class="sidebar-foot">EDUCATIONAL ENVIRONMENT<br>NOT A PRODUCTION SIEM</div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="breadcrumb"><span>Workspace</span><span class="crumb-slash">/</span><strong id="crumb-current">Overview</strong></div>
+        <div class="top-actions"><span class="environment-pill"><i></i> DEMO ENVIRONMENT</span><button class="icon-button" id="theme-toggle" aria-label="Toggle color theme" title="Toggle light/dark mode">◐</button><div class="avatar" aria-label="Analyst profile">A</div></div>
+      </header>
+
+      <section class="page-head" id="page-head">
+        <div><div class="eyebrow">SECURITY OPERATIONS <span>/</span> TRIAGE WORKSPACE</div><h1 id="page-title">Analyst overview</h1><p id="page-subtitle">A clear path from raw security signals to an evidence-based decision.</p></div>
+        <div class="head-actions"><span class="updated-label"><span class="live-dot"></span> Private browser workspace</span><button class="button button-secondary" id="refresh-btn">↻ Refresh</button><button class="button button-primary" id="run-demo-btn">Run demo scenario <span>↗</span></button></div>
+      </section>
+
+      <div class="notice-bar"><span class="notice-icon">i</span><span><strong>Training environment.</strong> Events and entities are synthetic. Actions update this local lab only; no endpoint commands are executed.</span><button id="notice-dismiss" aria-label="Dismiss notice">×</button></div>
+
+      <section id="overview-view" class="view-section">
+        <div class="metric-grid">
+          <article class="metric-card"><div class="metric-top"><span>Total alerts</span><span class="metric-icon">◉</span></div><div class="metric-value" id="metric-alerts">—</div><div class="metric-foot"><span class="metric-neutral">All detections</span><span id="metric-alerts-foot">From demo dataset</span></div></article>
+          <article class="metric-card"><div class="metric-top"><span>Critical alerts</span><span class="metric-icon icon-critical">!</span></div><div class="metric-value" id="metric-critical">—</div><div class="metric-foot"><span class="severity-text critical-text">Requires priority review</span></div></article>
+          <article class="metric-card"><div class="metric-top"><span>Needs triage</span><span class="metric-icon icon-review">⌁</span></div><div class="metric-value" id="metric-new">—</div><div class="metric-foot"><span class="metric-neutral">New or in review</span></div></article>
+          <article class="metric-card"><div class="metric-top"><span>Events observed</span><span class="metric-icon">≋</span></div><div class="metric-value" id="metric-events">—</div><div class="metric-foot"><span class="metric-neutral">Synthetic event records</span></div></article>
+        </div>
+
+        <div class="content-grid">
+          <section class="panel alert-panel">
+            <div class="panel-heading"><div><h2>Priority alert queue</h2><p>Start with the signal that carries the most risk.</p></div><button class="text-button" data-open-view="alerts">View queue <span>→</span></button></div>
+            <div class="queue-table-wrap"><table class="queue-table"><thead><tr><th>ALERT</th><th>SEVERITY</th><th>STATUS</th><th>CONFIDENCE</th><th></th></tr></thead><tbody id="overview-alert-rows"><tr><td colspan="5" class="loading-cell">Loading alert queue…</td></tr></tbody></table></div>
+            <div class="panel-footer"><span id="queue-footnote">Prioritized by severity</span><button class="text-button" data-open-view="alerts">Open all alerts →</button></div>
+          </section>
+          <section class="panel signal-panel">
+            <div class="panel-heading"><div><h2>Detection coverage</h2><p>Alerts grouped by severity.</p></div><span class="mini-tag">CURRENT DATASET</span></div>
+            <div id="severity-chart" class="severity-chart" aria-label="Alert severity distribution"></div>
+            <div class="chart-legend"><span><i class="legend-dot critical-bg"></i>Critical</span><span><i class="legend-dot high-bg"></i>High</span><span><i class="legend-dot medium-bg"></i>Medium</span></div>
+            <div class="divider"></div>
+            <div class="coverage-line"><div><span class="coverage-number" id="coverage-rule-count">5</span><span class="coverage-label">Active detection rules</span></div><button class="text-button" data-open-view="rules">Review rules →</button></div>
+          </section>
+        </div>
+
+        <section class="panel workflow-panel"><div class="panel-heading"><div><h2>Analyst workflow</h2><p>Keep the investigation evidence-led and repeatable.</p></div><span class="mini-tag">CASE LIFECYCLE</span></div><div class="workflow-steps"><div class="workflow-step"><span class="step-number">01</span><div class="step-icon">⌁</div><strong>Signal</strong><small>Detect unusual activity</small></div><div class="workflow-connector">→</div><div class="workflow-step"><span class="step-number">02</span><div class="step-icon">◉</div><strong>Triage</strong><small>Set priority and state</small></div><div class="workflow-connector">→</div><div class="workflow-step"><span class="step-number">03</span><div class="step-icon">⌕</div><strong>Investigate</strong><small>Review related evidence</small></div><div class="workflow-connector">→</div><div class="workflow-step"><span class="step-number">04</span><div class="step-icon">✓</div><strong>Decide</strong><small>Record verdict and action</small></div></div></section>
+      </section>
+
+      <section id="alerts-view" class="view-section hidden">
+        <div class="panel full-panel"><div class="panel-heading queue-heading"><div><h2>Alert queue</h2><p>Filter detections and open a case to review its evidence.</p></div><div class="queue-controls"><label class="search-box"><span>⌕</span><input id="alert-search" type="search" placeholder="Search alerts, users, hosts…" aria-label="Search alerts"></label><select id="status-filter" aria-label="Filter alert status"><option value="ALL">All statuses</option><option value="NEW">New</option><option value="IN_REVIEW">In review</option><option value="ESCALATED">Escalated</option><option value="CLOSED">Closed</option></select><select id="severity-filter" aria-label="Filter alert severity"><option value="ALL">All severity</option><option value="CRITICAL">Critical</option><option value="HIGH">High</option><option value="MEDIUM">Medium</option></select></div></div><div class="queue-table-wrap"><table class="queue-table large-table"><thead><tr><th>ALERT / RULE</th><th>SEVERITY</th><th>ENTITY</th><th>STATUS</th><th>CONFIDENCE</th><th>FIRST SEEN</th><th></th></tr></thead><tbody id="all-alert-rows"></tbody></table></div><div class="panel-footer"><span id="alert-results-count">Showing alerts</span><span class="footnote-right">Select an alert to inspect the evidence trail.</span></div></div>
+      </section>
+
+      <section id="events-view" class="view-section hidden"><div class="panel full-panel"><div class="panel-heading queue-heading"><div><h2>Event explorer</h2><p>Underlying synthetic activity that feeds the detection rules.</p></div><label class="search-box"><span>⌕</span><input id="event-search" type="search" placeholder="Search event, user, host, source…" aria-label="Search events"></label></div><div class="queue-table-wrap"><table class="queue-table large-table"><thead><tr><th>TIME (UTC)</th><th>EVENT ID</th><th>TYPE / ACTION</th><th>USER</th><th>HOST</th><th>SOURCE IP</th><th>DETAIL</th></tr></thead><tbody id="event-rows"></tbody></table></div><div class="panel-footer"><span id="event-results-count">Loading events…</span><span class="footnote-right">All event records are fictional training data.</span></div></div></section>
+
+      <section id="rules-view" class="view-section hidden"><div class="rules-intro"><div><div class="eyebrow">DETECTION ENGINE</div><h2>Explainable by design.</h2><p>Each rule uses explicit logic, documents why it fired, and includes a MITRE ATT&CK reference. These are educational heuristics—not a substitute for production detection engineering.</p></div><div class="rules-summary"><span id="rules-total">5</span><small>DETECTION RULES</small></div></div><div id="rules-grid" class="rules-grid"></div></section>
+
+      <footer class="app-footer"><span><strong>TriageArc</strong> <span class="footer-separator">·</span> From signal to decision.</span><span>EDUCATIONAL SOC LAB <span class="footer-separator">·</span> SYNTHETIC DATA ONLY</span></footer>
+    </main>
+  </div>
+
+  <div id="detail-overlay" class="overlay hidden" aria-hidden="true"><div class="detail-drawer" role="dialog" aria-modal="true" aria-labelledby="detail-title"><div class="drawer-header"><div><div class="eyebrow">ALERT INVESTIGATION <span>/</span> <span id="detail-rule">RULE</span></div><h2 id="detail-title">Alert detail</h2><p id="detail-uid"></p></div><button id="close-detail" class="icon-button close-button" aria-label="Close investigation">×</button></div><div id="detail-content" class="drawer-content"></div></div></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

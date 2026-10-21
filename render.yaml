@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: triagearc
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: TRIAGEARC_SECRET_KEY
+        generateValue: true
+      - key: TRIAGEARC_COOKIE_SECURE
+        value: "true"
